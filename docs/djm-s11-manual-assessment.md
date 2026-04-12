@@ -95,14 +95,18 @@ That said, one major unknown is now resolved by live testing on Windows:
 - Mixxx can assign two stereo vinyl-control inputs through the DJM-S11
 - Mixxx can assign two stereo deck outputs through the DJM-S11
 
-The remaining verification step is now:
+The remaining verification step is now narrower:
 
 - confirm healthy timecode signal quality on both decks
-- confirm the mixer channels are listening to the computer return on `A/B` instead of the direct `PHONO` source
+- tune the setup for stable cueing and scratch precision
 
 The manual's DVS section is important here because it explicitly says the input selector switches for CH1 and CH2 should be set to `A/B` in the DVS turntable workflow. That matches the current symptom: if `PHONO` is selected instead, you hear the control tone directly and not Mixxx playback audio.
 
-If that succeeds, the DVS question is effectively answered.
+That selector issue has now been validated in live testing: Mixxx audio can be played back through the DJM-S11 with vinyl control active once the routing is set correctly.
+
+What remains is the tuning phase. The manual's PHONO DVS control-tone adjustment is directly relevant here because it is intended to reduce playback-point deviation while scratching.
+
+If that tuning succeeds, the DVS question is effectively answered at a practical level.
 
 ## Practical conclusion
 

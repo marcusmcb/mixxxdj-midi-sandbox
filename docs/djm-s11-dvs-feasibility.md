@@ -4,9 +4,10 @@
 
 Using Mixxx with Serato control vinyl is clearly feasible.
 
-Using the DJM-S11 as the hardware center for that setup now looks feasible in principle because one major hardware-driver check has already passed in Mixxx on Windows:
+Using the DJM-S11 as the hardware center for that setup is now confirmed to work at a practical level on Windows because the critical checks have passed:
 
 - Mixxx can see and assign two stereo vinyl-control inputs and two stereo deck outputs through the DJM-S11 ASIO path
+- Mixxx deck audio can be returned through the mixer while vinyl control is active
 
 If it does, then Mixxx does not need Serato certification. It only needs access to the audio channels.
 
@@ -67,16 +68,19 @@ The manual strengthens this further by documenting:
 
 Those facts strongly suggest the device has the right physical I/O shape for Mixxx DVS too.
 
-## What still needs verification
+## What still needs work
 
-The remaining issue is no longer device enumeration. It is live DVS signal flow and calibration.
+The remaining issue is no longer feasibility. It is calibration and feel.
 
-- does Mixxx show healthy timecode signal quality on both decks when the turntables are playing Serato CV02?
-- does the DJM-S11 return Mixxx deck audio to the correct mixer channels instead of leaving those channels on the raw PHONO source?
+The current state is:
 
-If yes, then the setup is likely workable end-to-end.
+- audio playback through Mixxx and the DJM-S11 works
+- vinyl control is active and usable
+- cueing precision and overall control tightness still need tuning
 
-If no, then the fallback is not abandoning the controller project. The fallback is:
+That is a materially better result than a mere feasibility signal. The DVS path is working, but it is not yet dialed in for reliable scratch and cue performance.
+
+If calibration cannot be improved enough, the fallback is not abandoning the controller project. The fallback is:
 
 - use the DJM-S11 as MIDI controller and external mixer only
 - use a separate known-good DVS audio interface for timecode input/output
@@ -107,8 +111,68 @@ The current Windows test already established these points:
 - inside Mixxx input and output assignments, the DJM-S11 ASIO device is available specifically
 - two stereo vinyl-control inputs can be assigned
 - two stereo deck outputs can be assigned
+- Mixxx audio now plays back cleanly through the DJM-S11 while vinyl control is enabled
 
 That is enough to move the project out of the speculative stage. The remaining work is setup troubleshooting, not fundamental compatibility discovery.
+
+## Current tuning target
+
+The problem to solve now is not routing. It is control stability.
+
+Mixxx's vinyl-control guidance points to a short list of factors that usually cause messy cueing or imprecise scratching:
+
+- timecode level is too loud or too quiet
+- the wrong Serato CV02 side is selected
+- latency is too high
+- turntable grounding, stylus condition, or RCA integrity is imperfect
+- left/right channels are swapped or partially missing
+
+For the DJM-S11 specifically, the vendor utility also exposes a PHONO DVS control-tone level adjustment intended for exactly this class of scratch-position drift.
+
+The fact that reducing buffer size and PHONO DVS control-tone level did not materially improve the feel is useful information. It suggests the next likely causes are not gross software latency or obviously incorrect phono gain, but one of these:
+
+- signal quality is only marginal rather than cleanly green and stable
+- Mixxx's current vinyl-control behavior with this device and signal chain is the dominant factor rather than one bad deck path
+- the chosen control mode in Mixxx is not a good fit for the current cueing workflow
+- the final Linux or Raspberry Pi target may behave differently from the Windows test even if the mapping itself is fine
+
+Additional live testing has now narrowed this further: swapping RCA, cartridge, and related deck-side signal paths did not materially change the behavior. That makes a single bad turntable path less likely and shifts suspicion toward the overall timecode decode quality, Mixxx control mode behavior, or the DJM-S11's aggregate handling of the control signal.
+
+## Recommended tuning pass
+
+Use this order so only one variable changes at a time:
+
+1. In Mixxx Preferences > Vinyl Control, watch the signal-quality doughnut for each deck.
+2. Confirm the correct `Serato CV02` side is selected for the side currently on each platter.
+3. If the doughnut looks weak, noisy, or unstable, adjust Mixxx `Turntable Input Signal Boost` in small steps only.
+4. If scratching still causes the playback point to drift, adjust the DJM-S11 Setting Utility option that reduces the PHONO DVS control-tone level.
+5. Lower ASIO buffer size gradually until responsiveness improves without audible dropouts.
+6. Check both turntables for clean stylus contact, proper grounding, and intact stereo RCA wiring.
+7. If one deck behaves differently from the other, swap inputs between decks to determine whether the issue follows the deck, cartridge, cable, or channel path.
+
+The target is a clean green circular signal with stable direction, followed by usable response in relative and absolute modes.
+
+If swapping deck-side paths does not change the feel, stop spending time on cable swapping. The next useful checks are:
+
+1. compare the doughnut shape and color in `Absolute` versus `Relative`
+2. note whether one mode is consistently more controllable for cueing even if both are imperfect
+3. treat the remaining issue as a software-or-device interaction problem rather than a simple wiring fault
+
+## Raspberry Pi deployment note
+
+If the long-term target is a Raspberry Pi 500+, split the problem into two parts:
+
+1. controller mapping over MIDI
+2. built-in DJM-S11 audio interface and DVS on Linux/ARM
+
+The first part looks promising because Mixxx mappings are platform-agnostic once the MIDI device enumerates correctly.
+
+The second part is still an unknown. The DJM-S11 manual documents Windows and Mac, not Linux. However, because Mac uses no dedicated audio driver, the device may be class-compliant enough for Linux audio to work. That is encouraging, but it is not proof of Raspberry Pi compatibility.
+
+So the safest plan is:
+
+- continue mapping work now, because Windows has already proven the control concept and audio topology
+- treat Raspberry Pi audio and DVS as a separate hardware-validation pass once the core mapping exists
 
 ## Targeted troubleshooting for the current symptom
 
@@ -124,9 +188,9 @@ If you can hear the control tone but not the track audio, work through this exac
 
 If step 1 is wrong, the rest of the setup can appear half-correct: Mixxx may see the inputs, but you will still hear only timecode tone at the mixer.
 
-## Recommended verification steps on Windows
+## Recommended next-step verification on Windows
 
-Before writing a lot of mapping code, verify the audio path first:
+Before treating DVS as finished, verify the calibration path too:
 
 1. Install the official DJM-S11 Windows driver.
 2. Connect the DJM-S11 by USB and open Mixxx.
@@ -140,9 +204,11 @@ Before writing a lot of mapping code, verify the audio path first:
 6. In Preferences > Vinyl Control, select Serato CV02 Vinyl Side A or Side B as appropriate.
 7. Put Serato control vinyl on both decks and confirm Mixxx shows healthy timecode signal.
 8. Set CH1 and CH2 input selectors on the DJM-S11 to `A/B`, not `PHONO`, so the mixer monitors the Mixxx USB returns.
-9. If tracking drifts during scratching from PHONO inputs, compare behavior against the DJM-S11 utility's DVS PHONO control-tone adjustment.
+9. Reduce ASIO buffer size until cueing feels responsive without introducing dropouts.
+10. If tracking drifts during scratching from PHONO inputs, compare behavior against the DJM-S11 utility's DVS PHONO control-tone adjustment.
+11. Confirm whether `Absolute` or `Relative` mode feels more stable for your current cueing workflow.
 
-If those steps succeed, DVS feasibility is effectively confirmed.
+If those steps succeed, the DVS path is not only feasible but practically usable.
 
 ## Practical recommendation
 

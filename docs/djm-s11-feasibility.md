@@ -7,9 +7,9 @@ Yes, a practical Mixxx mapping for the Pioneer DJM-S11 looks realistic.
 The evidence is strong enough to say this is worth pursuing, with one important caveat:
 
 - the controller layer is high-confidence
-- the DVS audio-routing layer is likely feasible but still needs on-device verification in Mixxx on Windows
+- the DVS audio-routing layer is now confirmed on Windows, but Linux and Raspberry Pi deployment still need separate verification
 
-The reason for that split is simple. The MIDI message list gives us a concrete view of the control surface, and the newly added user manual confirms the presence of a dedicated Windows audio driver, ASIO configuration, USB audio routing, and a documented DVS workflow. What it still does not give us is a Mixxx-specific device enumeration screenshot, so the final audio-interface verdict still depends on one Windows test in Mixxx.
+The reason for that split is simple. The MIDI message list gives us a concrete view of the control surface, and the user manual confirms the presence of Windows ASIO support, USB audio routing, and a documented DVS workflow. Live testing has now shown that Mixxx on Windows can use the DJM-S11 for two stereo vinyl-control inputs and two stereo deck outputs, and that audio playback through the mixer works with vinyl control active. The remaining platform question is whether the same audio and MIDI exposure holds up cleanly on Linux, specifically on a Raspberry Pi 500+.
 
 ## What the MIDI message list confirms
 
@@ -155,6 +155,16 @@ The DJM-S11 is a credible Mixxx target.
 
 The controller layer is feasible now, based on the MIDI list alone. There is enough evidence to justify creating a sandbox mapping for core browsing, transport, loops, pads, mixer control, and basic feedback.
 
-The only major unknown that remains is not MIDI. It is how cleanly the built-in audio interface exposes routable inputs and outputs for DVS inside Mixxx on Windows.
+The Windows DVS path is now proven in principle. The remaining unknowns are:
+
+- how tight and stable the timecode response can be made for cueing and scratching
+- whether the built-in audio interface and MIDI ports enumerate cleanly on Linux/ARM for Raspberry Pi use
+
+The Raspberry Pi angle is important because the DJM-S11 manual only documents Windows and Mac support directly. That cuts two ways:
+
+- bad news: Pioneer does not document Linux support, so the Pi is not a vendor-supported target
+- good news: the manual says Mac uses no dedicated audio driver, only the Setting Utility, which is a positive sign that the device may rely on class-compliant audio on non-Windows systems
+
+That means the Pi path is plausible, but it should be treated as a fresh compatibility check for audio and MIDI enumeration rather than assumed from the Windows result.
 
 See also [djm-s11-manual-assessment.md](c:\Users\marcu\Documents\code\mixxxdj-midi-sandbox\docs\djm-s11-manual-assessment.md) and [djm-s11-dvs-feasibility.md](c:\Users\marcu\Documents\code\mixxxdj-midi-sandbox\docs\djm-s11-dvs-feasibility.md).
