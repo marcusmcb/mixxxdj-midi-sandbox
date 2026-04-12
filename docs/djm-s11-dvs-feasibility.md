@@ -4,9 +4,9 @@
 
 Using Mixxx with Serato control vinyl is clearly feasible.
 
-Using the DJM-S11 as the hardware center for that setup is likely feasible, but it depends on one hardware-driver check in Mixxx:
+Using the DJM-S11 as the hardware center for that setup now looks feasible in principle because one major hardware-driver check has already passed in Mixxx on Windows:
 
-- whether the DJM-S11 USB audio driver exposes enough stereo inputs and outputs to Mixxx for external-mixer DVS routing
+- Mixxx can see and assign two stereo vinyl-control inputs and two stereo deck outputs through the DJM-S11 ASIO path
 
 If it does, then Mixxx does not need Serato certification. It only needs access to the audio channels.
 
@@ -69,11 +69,12 @@ Those facts strongly suggest the device has the right physical I/O shape for Mix
 
 ## What still needs verification
 
-This is the key unresolved question:
+The remaining issue is no longer device enumeration. It is live DVS signal flow and calibration.
 
-- in Mixxx on Windows, when the DJM-S11 ASIO driver is selected, do you see at least two stereo vinyl-control inputs and two stereo deck outputs that can be assigned independently?
+- does Mixxx show healthy timecode signal quality on both decks when the turntables are playing Serato CV02?
+- does the DJM-S11 return Mixxx deck audio to the correct mixer channels instead of leaving those channels on the raw PHONO source?
 
-If yes, then the setup is likely workable.
+If yes, then the setup is likely workable end-to-end.
 
 If no, then the fallback is not abandoning the controller project. The fallback is:
 
@@ -93,13 +94,43 @@ The manual is consistent with this model. It explicitly documents DVS use with t
 
 If the S11 driver exposes that routing cleanly, the setup is exactly the kind of external-mixer DVS workflow Mixxx already documents.
 
+One practical implication from the manual matters here: for DVS operation, the channel input selector switches for CH1 and CH2 should be on the computer side, `A/B`, not left on `PHONO`.
+
+If a channel is left on `PHONO`, you will hear the Serato control tone directly from the turntable input. That means the timecode source is reaching the mixer, but the channel is not listening to Mixxx's USB deck return.
+
+## Known-good signs from current testing
+
+The current Windows test already established these points:
+
+- Mixxx is running with the DJM-S11 connected and powered on
+- the Sound API shows generic `ASIO`, which is normal for many Windows apps
+- inside Mixxx input and output assignments, the DJM-S11 ASIO device is available specifically
+- two stereo vinyl-control inputs can be assigned
+- two stereo deck outputs can be assigned
+
+That is enough to move the project out of the speculative stage. The remaining work is setup troubleshooting, not fundamental compatibility discovery.
+
+## Targeted troubleshooting for the current symptom
+
+If you can hear the control tone but not the track audio, work through this exact order:
+
+1. On the DJM-S11, set CH1 and CH2 input selectors to `A` or `B` for the connected computer, not `PHONO`.
+2. In Mixxx, keep `Vinyl Control 1/2` assigned to the DJM-S11 input stereo pairs and `Deck 1/2` assigned to the DJM-S11 output stereo pairs.
+3. In Mixxx, load real tracks to Deck 1 and Deck 2.
+4. In Mixxx, enable vinyl control for both decks.
+5. In Preferences > Vinyl Control, select the correct Serato CV02 side for each record side actually on the platter.
+6. In the DJM-S11 Setting Utility, verify the `DJM-S11 Audio Output` routing sends the USB returns for CH1 and CH2 to the expected deck channels rather than an alternate bus.
+7. If Mixxx still shows weak or missing signal quality, test the DJM-S11 PHONO DVS control-tone adjustment and check turntable grounding, stylus condition, and left/right RCA integrity.
+
+If step 1 is wrong, the rest of the setup can appear half-correct: Mixxx may see the inputs, but you will still hear only timecode tone at the mixer.
+
 ## Recommended verification steps on Windows
 
 Before writing a lot of mapping code, verify the audio path first:
 
 1. Install the official DJM-S11 Windows driver.
 2. Connect the DJM-S11 by USB and open Mixxx.
-3. In Preferences > Sound Hardware, select the DJM-S11 ASIO driver.
+3. In Preferences > Sound Hardware, leave the main Sound API on `ASIO` and select the DJM-S11 device in the specific input/output assignment rows.
 4. Check the Input tab for at least:
    Vinyl Control 1 with a stereo pair
    Vinyl Control 2 with a stereo pair
@@ -108,9 +139,10 @@ Before writing a lot of mapping code, verify the audio path first:
    Deck 2 with a stereo pair
 6. In Preferences > Vinyl Control, select Serato CV02 Vinyl Side A or Side B as appropriate.
 7. Put Serato control vinyl on both decks and confirm Mixxx shows healthy timecode signal.
-8. If tracking drifts during scratching from PHONO inputs, compare behavior against the DJM-S11 utility's DVS PHONO control-tone adjustment.
+8. Set CH1 and CH2 input selectors on the DJM-S11 to `A/B`, not `PHONO`, so the mixer monitors the Mixxx USB returns.
+9. If tracking drifts during scratching from PHONO inputs, compare behavior against the DJM-S11 utility's DVS PHONO control-tone adjustment.
 
-If those seven steps succeed, DVS feasibility is effectively confirmed.
+If those steps succeed, DVS feasibility is effectively confirmed.
 
 ## Practical recommendation
 

@@ -90,11 +90,17 @@ This matters because the mapping is not trying to infer functionality from butto
 
 The manual does not fully close the Mixxx question because it does not show the exact channel naming as Mixxx will see it inside the Windows audio-device dialog.
 
-The remaining verification step is still:
+That said, one major unknown is now resolved by live testing on Windows:
 
-- install Mixxx on Windows
-- select the DJM-S11 ASIO driver
-- verify that Mixxx exposes at least two stereo vinyl-control inputs and two stereo deck outputs
+- Mixxx can assign two stereo vinyl-control inputs through the DJM-S11
+- Mixxx can assign two stereo deck outputs through the DJM-S11
+
+The remaining verification step is now:
+
+- confirm healthy timecode signal quality on both decks
+- confirm the mixer channels are listening to the computer return on `A/B` instead of the direct `PHONO` source
+
+The manual's DVS section is important here because it explicitly says the input selector switches for CH1 and CH2 should be set to `A/B` in the DVS turntable workflow. That matches the current symptom: if `PHONO` is selected instead, you hear the control tone directly and not Mixxx playback audio.
 
 If that succeeds, the DVS question is effectively answered.
 
