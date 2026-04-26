@@ -15,9 +15,11 @@ PioneerDJMS11.deckNumbers = {
 
 PioneerDJMS11.deckLedNotes = {
     load: 0x46,
+    play: 0x0B,
     sync: 0x58,
     keylock: 0x1A,
     hotcueMode: 0x1B,
+    pfl: 0x54,
 };
 
 PioneerDJMS11.shiftPressed = false;
@@ -77,8 +79,10 @@ PioneerDJMS11.prepareDeck = function(group) {
 
 PioneerDJMS11.bindDeckConnections = function(group, remove) {
     var controls = {
+        play_indicator: "PioneerDJMS11.playLed",
         sync_enabled: "PioneerDJMS11.syncLed",
         keylock: "PioneerDJMS11.keylockLed",
+        pfl: "PioneerDJMS11.pflLed",
         track_loaded: "PioneerDJMS11.loadLed",
     };
     var hotcueIndex;
@@ -194,6 +198,26 @@ PioneerDJMS11.loadButton = function(_channel, _control, value, _status, group) {
     }
 };
 
+PioneerDJMS11.playButton = function(_channel, _control, value, _status, group) {
+    if (value) {
+        script.toggleControl(group, "play");
+    }
+};
+
+PioneerDJMS11.playTouchButton = function(_channel, _control, value, _status, group) {
+    PioneerDJMS11.playButton(_channel, _control, value, _status, group);
+};
+
+PioneerDJMS11.silentCueTouchButton = function(_channel, _control, value, _status, group) {
+    engine.setValue(group, PioneerDJMS11.shiftPressed ? "cue_gotoandstop" : "cue_default", value);
+};
+
+PioneerDJMS11.headphoneCueButton = function(_channel, _control, value, _status, group) {
+    if (value) {
+        script.toggleControl(group, "pfl");
+    }
+};
+
 PioneerDJMS11.fourBeatLoopButton = function(_channel, _control, value, _status, group) {
     if (value) {
         script.triggerControl(group, "beatloop_activate", 40);
@@ -243,6 +267,15 @@ PioneerDJMS11.keyLockTouch = function(_channel, _control, value, _status, group)
     if (value) {
         script.toggleControl(group, "keylock");
     }
+};
+
+PioneerDJMS11.quantizeGlobalButton = function(_channel, _control, value) {
+    if (!value) {
+        return;
+    }
+
+    script.toggleControl("[Channel1]", "quantize");
+    script.toggleControl("[Channel2]", "quantize");
 };
 
 PioneerDJMS11.trimMsb = function(_channel, _control, value, _status, group) {
@@ -336,6 +369,14 @@ PioneerDJMS11.keylockLed = function(value, group) {
 
 PioneerDJMS11.loadLed = function(value, group) {
     PioneerDJMS11.sendDeckLed(group, PioneerDJMS11.deckLedNotes.load, value > 0);
+};
+
+PioneerDJMS11.playLed = function(value, group) {
+    PioneerDJMS11.sendDeckLed(group, PioneerDJMS11.deckLedNotes.play, value > 0);
+};
+
+PioneerDJMS11.pflLed = function(value, group) {
+    PioneerDJMS11.sendDeckLed(group, PioneerDJMS11.deckLedNotes.pfl, value > 0);
 };
 
 PioneerDJMS11.hotcueLed = function(value, group, control) {

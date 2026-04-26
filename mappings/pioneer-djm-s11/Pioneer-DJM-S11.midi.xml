@@ -49,6 +49,78 @@
 
             <control>
                 <group>[Channel1]</group>
+                <key>PioneerDJMS11.playButton</key>
+                <status>0x90</status>
+                <midino>0x0B</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>PioneerDJMS11.playButton</key>
+                <status>0x91</status>
+                <midino>0x0B</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>PioneerDJMS11.playTouchButton</key>
+                <status>0x96</status>
+                <midino>0x63</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>PioneerDJMS11.playTouchButton</key>
+                <status>0x96</status>
+                <midino>0x6B</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>PioneerDJMS11.silentCueTouchButton</key>
+                <status>0x96</status>
+                <midino>0x5A</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>PioneerDJMS11.silentCueTouchButton</key>
+                <status>0x96</status>
+                <midino>0x5F</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
+                <key>PioneerDJMS11.headphoneCueButton</key>
+                <status>0x90</status>
+                <midino>0x54</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel2]</group>
+                <key>PioneerDJMS11.headphoneCueButton</key>
+                <status>0x91</status>
+                <midino>0x54</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Channel1]</group>
                 <key>PioneerDJMS11.loadButton</key>
                 <status>0x90</status>
                 <midino>0x46</midino>
@@ -169,6 +241,15 @@
                 <key>PioneerDJMS11.keyLockTouch</key>
                 <status>0x91</status>
                 <midino>0x1A</midino>
+                <options>
+                    <script-binding/>
+                </options>
+            </control>
+            <control>
+                <group>[Controls]</group>
+                <key>PioneerDJMS11.quantizeGlobalButton</key>
+                <status>0x96</status>
+                <midino>0x64</midino>
                 <options>
                     <script-binding/>
                 </options>
